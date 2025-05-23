@@ -7,8 +7,6 @@ let x = 0,
 
 let otherPlayers = new Map();
 
-// Set up the sketch canvas and socket connection,
-// including callback function for when the socket receives data.
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
 
@@ -29,9 +27,8 @@ function setup() {
 }
 
 function draw() {
-  background(255);
+  background('blue');
 
-  // Rotate the box based on accelerometer data
   x += accelerationX * 0.05;
   y += accelerationY * 0.05;
   z += accelerationZ * 0.05;
@@ -40,7 +37,6 @@ function draw() {
   rotateZ(z);
   box(200, 200, 200);
 
-  // Emit your data to the server
   const data = {
     id: socket.id,
     x,
@@ -49,7 +45,7 @@ function draw() {
   };
   socket.emit('update', JSON.stringify(data));
 
-  // Draw other players' boxes
+  // draw other players' boxes
   for (let id in otherPlayers) {
     const player = otherPlayers[id];
     push();
@@ -57,7 +53,7 @@ function draw() {
     rotateX(player.x);
     rotateY(player.y);
     rotateZ(player.z);
-    fill(100, 150, 255, 150);
+    fill('red');
     box(100, 100, 100);
     pop();
   }
