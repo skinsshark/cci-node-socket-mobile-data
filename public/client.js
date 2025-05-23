@@ -35,6 +35,7 @@ function draw() {
   rotateX(x);
   rotateY(y);
   rotateZ(z);
+  fill('transparent');
   box(200, 200, 200);
 
   const data = {
