@@ -14,17 +14,17 @@ const io = socket(server);
 io.of('/client').on('connection', (socket) => {
   console.log('new client connection: ' + socket.id);
 
-  io.emit('userJoined', { id: socket.id });
+  io.of('/sharedView').emit('userJoined', { id: socket.id });
 
   socket.on('update', (data) => {
-    io.emit('userUpdate', data);
+    io.of('/sharedView').emit('userUpdate', data);
   });
 
   socket.on('disconnect', (data) => {
-    io.emit('userLeft', { id: socket.id });
+    io.of('/sharedView').emit('userLeft', { id: socket.id });
   });
 });
 
-io.on('connection', (socket) => {
+io.of('/sharedView').on('connection', (socket) => {
   console.log('new SHARED VIEW connection: ' + socket.id);
 });

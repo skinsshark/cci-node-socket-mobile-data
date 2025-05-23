@@ -5,10 +5,15 @@ let x = 0,
   y = 0,
   z = 0;
 
+let r, g, b;
+
 let otherPlayers = new Map();
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
+  r = random(255);
+  g = random(255);
+  b = random(255);
 
   // button for iOS permission
   btn = createButton('Motion');
@@ -27,35 +32,5 @@ function setup() {
 }
 
 function draw() {
-  background('blue');
-
-  x += accelerationX * 0.05;
-  y += accelerationY * 0.05;
-  z += accelerationZ * 0.05;
-  rotateX(x);
-  rotateY(y);
-  rotateZ(z);
-  fill('transparent');
-  box(200, 200, 200);
-
-  const data = {
-    id: socket.id,
-    x,
-    y,
-    z,
-  };
-  socket.emit('update', JSON.stringify(data));
-
-  // draw other players' boxes
-  for (let id in otherPlayers) {
-    const player = otherPlayers[id];
-    push();
-    translate(player.x * 10, player.y * 10, player.z * 10);
-    rotateX(player.x);
-    rotateY(player.y);
-    rotateZ(player.z);
-    fill('red');
-    box(100, 100, 100);
-    pop();
-  }
+  background(r, g, b);
 }
