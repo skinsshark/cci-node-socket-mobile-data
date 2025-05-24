@@ -1,13 +1,14 @@
 const SOCKET_URL = window.location.host;
 const socket = io.connect(SOCKET_URL + '/sharedView');
+const wrapper = document.getElementById('wrapper-grid');
 
 const users = new Map();
 
 function setup() {
-  createCanvas(windowWidth * 0.8, windowHeight * 0.8, WEBGL);
+  // createCanvas(windowWidth * 0.8, windowHeight * 0.8, WEBGL);
 
   socket.on('userJoined', onUserJoined);
-  socket.on('userUpdate', onUserUpdate);
+  socket.on('userUpdate', onReceiveImage);
   socket.on('userLeft', onUserLeft);
 
   angleMode(DEGREES);
@@ -23,41 +24,7 @@ function setup() {
 }
 
 function draw() {
-  background(51);
-
-  // arrange all users in a circle, using this radius in the
-  // loop below.
-  const radius = min(width / 2, height / 2) * 0.8;
-
-  // we'll use this variable to do some math related to our
-  // position in the loop over all the users.
-  let i = 0;
-
-  // iterate over all of the [key, value] pairs
-  // this neat little shortcut in the for loop creates two variables
-  // for each entry in the map:
-  //   - id (contains the key)
-  //   - user (contains the value)
-  for (const [id, user] of users.entries()) {
-    const angle = map(i, 0, users.size, 0, 360);
-    i++; // used i to calculate the angle, updating now because we're done w/ it
-
-    // trigonometry! calculate a position around a circle without using rotate()
-    // because we don't want to actually rotate the shapes... yet.
-    const x = radius * cos(angle);
-    const y = radius * sin(angle);
-
-    push();
-
-    // we're using webGL here and all 3d shapes are drawn at
-    // 0,0 so we have to translate to where we want them to
-    // be drawn.
-    translate(x, y);
-
-    if (user.name != undefined) {
-    }
-    pop();
-  }
+  // background('white');
 }
 
 function onUserJoined(data) {
@@ -78,6 +45,89 @@ function onUserUpdate(data) {
 function onUserLeft(data) {
   console.log(`user left ${data.id}`);
   users.delete(data.id);
+  const existingImg = document.getElementById(data.id);
+  if (existingImg) {
+    existingImg.remove();
+  }
+}
+
+function onReceiveImage(data) {
+  // Input data (from server) processing here. --->
+  console.log(data.id);
+
+  // arrange all users in a circle, using this radius in the
+  // loop below.
+  // const radius = min(width / 2, height / 2) * 0.8;
+
+  // // we'll use this variable to do some math related to our
+  // // position in the loop over all the users.
+  // let i = 0;
+
+  // // iterate over all of the [key, value] pairs
+  // // this neat little shortcut in the for loop creates two variables
+  // // for each entry in the map:
+  // //   - id (contains the key)
+  // //   - user (contains the value)
+  // for (const [id, user] of users.entries()) {
+  //   const angle = map(i, 0, users.size, 0, 360);
+  //   i++; // used i to calculate the angle, updating now because we're done w/ it
+
+  //   // trigonometry! calculate a position around a circle without using rotate()
+  //   // because we don't want to actually rotate the shapes... yet.
+  //   const x = radius * cos(angle);
+  //   const y = radius * sin(angle);
+
+  //   push();
+
+  //   // we're using webGL here and all 3d shapes are drawn at
+  //   // 0,0 so we have to translate to where we want them to
+  //   // be drawn.
+  //   translate(x, y);
+  //   // for (let s of user.strokes.points) {
+  //   //   for (let i = 0; i < s.points.length - 1; i++) {
+  //   //     line(
+  //   //       s.points[i].x,
+  //   //       s.points[i].y,
+  //   //       s.points[i + 1].x,
+  //   //       s.points[i + 1].y
+  //   //     );
+  //   //   }
+  //   // }
+  //   pop();
+  // }
+
+  // if (user.name != undefined) {
+  // console.log(user.name);
+
+  // fill('black');
+  // text('yoyoyioasdfhlijadkshfhawelkjfh', 200, 200);
+  // }
+  // add image element to page, in a list item as part
+  // of the chat-history unordered list:
+
+  // the chat history is a ul (unordered list), so every
+  // message it contains is an li (list item). we'll start
+  // by making a new list item to contain the content and
+  // assign it an appropriate class from our CSS.
+
+  let newMessageElement = document.createElement('li');
+  newMessageElement.classList.add('message');
+  newMessageElement.id = data.id;
+
+  const existingImg = document.getElementById(data.id);
+  if (existingImg) {
+    existingImg.src = data.src;
+  } else {
+    const newImg = document.createElement('img');
+    newImg.id = data.id;
+    newImg.src = data.src;
+    wrapper.appendChild(newImg);
+  }
+
+  // and autoscroll to the bottom of the chat history,
+  // since our new message is displayed at the bottom
+  // and we want to be able to see it
+  // wrapper.scrollTop = wrapper.scrollHeight;
 }
 
 function touchStarted(e) {

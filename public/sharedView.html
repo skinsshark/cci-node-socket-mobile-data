@@ -18,22 +18,31 @@
     <script src="https://cdn.jsdelivr.net/npm/p5.sound@latest/dist/p5.sound.min.js"></script>
 
     <!-- link font from Google -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- import the webpage's client-side javascript file -->
     <script src="sharedView.js" defer></script>
   </head>
-  <body>
-
+  <body class="shared-view">
     <!-- TODO: ADD HTML ELEMENTS AS YOU SEE FIT HERE -->
-    <h1>
-      Connections
-    </h1>
-    <main>
-
-    </main>
-
+    <h1>who's that pokemon? from memory</h1>
+    <img class="pokemon" src="/images/1.png" />
+    <button id="done">reveal</button>
+    <main id="wrapper-grid"></main>
   </body>
+
+  <script>
+    const ANSWER_IMG = '/images/1-ans.png';
+    const doneBtn = document.getElementById('done');
+    doneBtn.addEventListener('click', () => {
+      const pokemonImg = document.querySelector('.pokemon');
+      pokemonImg.src = ANSWER_IMG;
+      doneBtn.style.opacity = 0;
+    });
+  </script>
 </html>

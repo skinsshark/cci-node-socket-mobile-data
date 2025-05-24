@@ -18,15 +18,11 @@ io.of('/client').on('connection', (socket) => {
 
   socket.on('update', (data) => {
     io.of('/sharedView').emit('userUpdate', data);
+    // io.of('/sharedView').emit('image', data);
   });
 
   socket.on('disconnect', (data) => {
     io.of('/sharedView').emit('userLeft', { id: socket.id });
-  });
-
-  // define handlers for events we expect to receive
-  socket.on('image', (data) => {
-    io.of('/sharedView').emit('image', data);
   });
 });
 

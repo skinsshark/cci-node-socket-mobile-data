@@ -54,8 +54,8 @@ let nickname;
 // set up the sketch canvas and socket connection,
 // including callback function for when the socket receives data.
 function setup() {
-  p5Canvas = createCanvas(windowWidth, windowHeight);
-  p5Canvas.parent('localCanvas');
+  p5Canvas = createCanvas(300, 300);
+  // p5Canvas.parent('localCanvas');
   angleMode(DEGREES);
   textAlign(CENTER, CENTER);
   fill(255);
@@ -67,24 +67,24 @@ function setup() {
    */
   sendButton.addEventListener('click', function (e) {
     // create an object for the data:
-    let data = {
+    const data = {
       // p5Canvas.elt gets the raw <canvas> element on the page,
       // and toDataURL() encodes the image data from the canvas
       // into a format that can be sent via socket.io
       src: p5Canvas.elt.toDataURL(),
+      id: socket.id,
+      name: nickname,
     };
     console.log({ data });
 
     // send the message (name of message is image)
-    socket.emit('image', data);
-    // clear out our side: drawing is sent as a message.
-    background('red');
+    socket.emit('update', data);
   });
 }
 
 function draw() {
   // Line approach
-  background('white');
+  background(240);
   for (let s of strokes) {
     for (let i = 0; i < s.points.length - 1; i++) {
       line(s.points[i].x, s.points[i].y, s.points[i + 1].x, s.points[i + 1].y);
@@ -93,22 +93,7 @@ function draw() {
 
   fill('black');
   textAlign('left');
-  text(`your name is: ${nickname}`, 25, 30);
-
-  if (frameCount % updateRate === 0) {
-    const data = {
-      mouseX: mouseX,
-      mouseY: mouseY,
-      touches: touches,
-      windowWidth: windowWidth,
-      windowHeight: windowHeight,
-      id: socket.id,
-      name: nickname,
-    };
-    // the touches array is pretty complex, so we need to turn it into
-    // a string before we send it over the socket.
-    socket.emit('update', JSON.stringify(data));
-  }
+  text(nickname, 25, 30);
 }
 
 function mousePressed() {
@@ -129,6 +114,17 @@ function touchStarted() {
 
 function touchMoved() {
   strokes[strokes.length - 1].points.push({ x: mouseX, y: mouseY });
+
+  if (frameCount % updateRate === 0) {
+    const data = {
+      src: p5Canvas.elt.toDataURL(),
+      id: socket.id,
+      name: nickname,
+    };
+    // the touches array is pretty complex, so we need to turn it into
+    // a string before we send it over the socket.
+    socket.emit('update', data);
+  }
   return false;
 }
 

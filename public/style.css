@@ -1,9 +1,10 @@
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-  color: white;
-  background: black;
+  color: black;
+  background: white;
 }
 
 h1 {
@@ -14,4 +15,38 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 20px;
+}
+
+.client-view {
+  display: flex;
+  flex-direction: column;
+  height: 90svh;
+}
+
+.shared-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 90svh;
+  gap: 20px;
+
+  canvas {
+    display: none;
+  }
+}
+
+.shared-view .pokemon {
+  height: 30vh;
+  width: auto;
+}
+
+.shared-view #wrapper-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+}
+
+.shared-view img {
+  width: 100%;
 }
