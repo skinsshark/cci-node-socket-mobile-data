@@ -8,24 +8,28 @@ app.use(express.static('public'));
 
 console.log(`Server is listening on port ${port}`);
 
-const socket = require("socket.io");
+const socket = require('socket.io');
 const io = socket(server);
 
-
 io.of('/client').on('connection', (socket) => {
-  console.log("new client connection: " + socket.id);
+  console.log('new client connection: ' + socket.id);
 
-  io.of('/sharedView').emit('userJoined', {id: socket.id});
+  io.of('/sharedView').emit('userJoined', { id: socket.id });
 
   socket.on('update', (data) => {
     io.of('/sharedView').emit('userUpdate', data);
-  })
+  });
 
   socket.on('disconnect', (data) => {
-    io.of('/sharedView').emit('userLeft', {id: socket.id});
+    io.of('/sharedView').emit('userLeft', { id: socket.id });
+  });
+
+  // define handlers for events we expect to receive
+  socket.on('image', (data) => {
+    io.of('/sharedView').emit('image', data);
   });
 });
 
 io.of('/sharedView').on('connection', (socket) => {
-  console.log("new SHARED VIEW connection: " + socket.id);
+  console.log('new SHARED VIEW connection: ' + socket.id);
 });

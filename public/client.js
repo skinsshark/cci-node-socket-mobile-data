@@ -1,84 +1,135 @@
-/* Draw remotely with other people!
- *
- * JavaScript code for a website that sets up p5.js and talks
- * to another client using socket.io.
- *
- * update the setup, draw, and p5.js event functions as you need to
- * for your interactions. you can also mix this with the other JavaScript
- * methods we've been using for event handling, styling, etc.
+/*
+ * mobile draw: https://editor.p5js.org/stalgia.grigg/sketches/swH9eyumc
+ * socket.io boilerplate: https://github.com/kjhollen/cci-node-draw-chat/
  */
 
-const SOCKET_URL = window.location.host + "/client";
+const SOCKET_URL = window.location.host + '/client';
 const socket = io.connect(SOCKET_URL);
 
+const sendButton = document.getElementById('sendButton');
+
+let strokes = [];
+// will hold on to the p5.js canvas for us.
+let p5Canvas;
+
+// Some browsers won't pick up touch without this, will fire scroll instead
+document.body.addEventListener(
+  'touchmove',
+  (ev) => {
+    if (ev.touches.length >= 1) {
+      ev.preventDefault();
+    }
+  },
+  true
+);
 const updateRate = 30; // frames
 
 // nickname to make you easier to identify on screen
 const handles = [
-  "silver",
-  "maroon",
-  "purple",
-  "fuschia",
-  "green",
-  "lime",
-  "olive",
-  "blue",
-  "teal",
-  "aqua",
-  "darkorchid",
-  "darkolivegreen",
-  "salmon",
-  "goldenrod",
-  "greenyellow",
-  "hotpink",
-  "indigo",
-  "lightblue",
-  "mediumslateblue",
-  "orange",
-  "orangered",
-  "palevioletred"
+  'silver',
+  'maroon',
+  'purple',
+  'fuschia',
+  'green',
+  'lime',
+  'olive',
+  'blue',
+  'teal',
+  'aqua',
+  'darkorchid',
+  'darkolivegreen',
+  'salmon',
+  'goldenrod',
+  'greenyellow',
+  'hotpink',
+  'indigo',
+  'lightblue',
+  'mediumslateblue',
+  'orange',
+  'orangered',
+  'palevioletred',
 ];
 let nickname;
 
 // set up the sketch canvas and socket connection,
 // including callback function for when the socket receives data.
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  p5Canvas = createCanvas(windowWidth, windowHeight);
+  p5Canvas.parent('localCanvas');
   angleMode(DEGREES);
   textAlign(CENTER, CENTER);
   fill(255);
   nickname = random(handles);
+  /**
+   * JavaScript event listener for the send button, which grabs
+   * the image data from the p5.js canvas and encodes it to send
+   * over the web socket.
+   */
+  sendButton.addEventListener('click', function (e) {
+    // create an object for the data:
+    let data = {
+      // p5Canvas.elt gets the raw <canvas> element on the page,
+      // and toDataURL() encodes the image data from the canvas
+      // into a format that can be sent via socket.io
+      src: p5Canvas.elt.toDataURL(),
+    };
+    console.log({ data });
+
+    // send the message (name of message is image)
+    socket.emit('image', data);
+    // clear out our side: drawing is sent as a message.
+    background('red');
+  });
 }
 
 function draw() {
-  background(51);
-  noStroke();
+  // Line approach
+  background('white');
+  for (let s of strokes) {
+    for (let i = 0; i < s.points.length - 1; i++) {
+      line(s.points[i].x, s.points[i].y, s.points[i + 1].x, s.points[i + 1].y);
+    }
+  }
 
-  textSize(24);
-  text(`Your code name is: ${nickname}.`, width / 2, height / 2);
-  textSize(16);
-  text('Move your phone around.', width / 2, height / 2 + 40);
+  fill('black');
+  textAlign('left');
+  text(`your name is: ${nickname}`, 25, 30);
 
   if (frameCount % updateRate === 0) {
     const data = {
-      accelerationX: accelerationX,
-      accelerationY: accelerationY,
-      accelerationZ: accelerationZ,
-      rotationX: rotationX,
-      rotationY: rotationY,
-      rotationZ: rotationZ,
       mouseX: mouseX,
       mouseY: mouseY,
       touches: touches,
       windowWidth: windowWidth,
       windowHeight: windowHeight,
       id: socket.id,
-      name: nickname
+      name: nickname,
     };
     // the touches array is pretty complex, so we need to turn it into
     // a string before we send it over the socket.
-    socket.emit("update", JSON.stringify(data));
+    socket.emit('update', JSON.stringify(data));
   }
+}
+
+function mousePressed() {
+  strokes.push({ points: [] });
+  strokes[strokes.length - 1].points.push({ x: mouseX, y: mouseY });
+}
+
+function mouseDragged() {
+  strokes[strokes.length - 1].points.push({ x: mouseX, y: mouseY });
+}
+
+function touchStarted() {
+  fullscreen();
+  strokes.push({ points: [] });
+  strokes[strokes.length - 1].points.push({ x: mouseX, y: mouseY });
+  return false;
+}
+
+function touchMoved() {
+  strokes[strokes.length - 1].points.push({ x: mouseX, y: mouseY });
+  return false;
 }
 
 /* leave this here so that Glitch will not mark global p5.js and socket.io functions as errors */
